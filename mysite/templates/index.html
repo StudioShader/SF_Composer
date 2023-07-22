@@ -1,0 +1,9 @@
+{% if lo %}
+    <ul>
+    {% for a in lo %}
+        <p>{{ a }}</p>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
