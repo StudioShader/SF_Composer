@@ -1,11 +1,49 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
+from .forms import RegisterForm, ProjectForm
+from .models import Project, LOCircuit, LOConnection, LODevice
 
 def index(request):
-    context = {"lo": [1, 2, 3]}
-    return render(request, "projects_list.html", context)
+    projects = Project.objects.all()
+    return render(request, "projects_list.html", {"projects": projects})
 
 @xframe_options_sameorigin
 def lodesigner(request):
     return render(request, "lo_designer.html")
+
+def sign_up(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('/LODesigner')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'registration/sign_up.html', {"form": form})
+
+@login_required(login_url="/login")
+def create_project(request):
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.user = request.user
+            project.save()
+            return redirect("/LODesigner")
+    else:
+        form = ProjectForm()
+    return render(request, "create_project.html", {"form": form})
+
+@login_required(login_url="/login")
+def home(request):
+    return redirect(request, '/LODesigner/index')
+
+@login_required(login_url="/login")
+def add_cycle_object(request):
+    if request.method == 'POST':
+        lodevice = LODevice()

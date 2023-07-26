@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block "content" %}
+<div style="margin: auto;">
+<span class="fs-4">Create new project</span>
+<form method="post">
+    {% csrf_token %}{{form|crispy}}
+    Having trouble using website? Please contact me at ivanogloblin2022@gmail.com
+    <button type="submit" class="btn btn-success">Create</button>
+</form>
+{% endblock "content" %}

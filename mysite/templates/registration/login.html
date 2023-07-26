@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block "content" %}
+<div style="margin: auto;">
+<span class="fs-4">Login</span>
+<form method="post">
+    {% csrf_token %}{{form|crispy}}
+    <p>Don't have an account? Create <a href="/LODesigner/sign-up">HERE</a></p>
+    <button type="submit" class="btn btn-success">Login</button>
+</form>
+{% endblock "content" %}

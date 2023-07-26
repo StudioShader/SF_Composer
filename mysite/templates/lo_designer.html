@@ -496,7 +496,22 @@ document.addEventListener("DOMContentLoaded",function () {
                         "port": el.targetPort.name
                     }
                 }];
-    }    
+    }
+    $("#export").click(function(e) {
+        e.preventDefault();
+        exp_objects = [];
+        exp_connections = [];
+        random_suffix = makeid(16);
+        canvas.figures.data.forEach(el => {            
+            exp_objects.push(serialize_object(el, random_suffix));
+        });
+        canvas.lines.data.forEach(el => {
+            exp_connections.push(serialize_connection(el, random_suffix));
+        });  
+        data_to_save = JSON.stringify({objects: exp_objects, connections: exp_connections});
+        download(data_to_save, "loqc_tex_.txt");
+        //$("#activate").click(); 
+    });
     $("#save").click(function(e) {
         e.preventDefault();
         $.get('/clear_design/', {id: '{{ project_key }}' }, function(data) {
@@ -514,22 +529,7 @@ document.addEventListener("DOMContentLoaded",function () {
             $("#save").addClass("loqc_button_2_inactive");
             //$("#activate").click();            
         });
-    });
-    $("#export").click(function(e) {
-        e.preventDefault();
-        exp_objects = [];
-        exp_connections = [];
-        random_suffix = makeid(16);
-        canvas.figures.data.forEach(el => {            
-            exp_objects.push(serialize_object(el, random_suffix));
-        });
-        canvas.lines.data.forEach(el => {
-            exp_connections.push(serialize_connection(el, random_suffix));
-        });  
-        data_to_save = JSON.stringify({objects: exp_objects, connections: exp_connections});
-        download(data_to_save, "loqc_tex_.txt");
-        //$("#activate").click(); 
-    });    
+    });  
     $("#import").click(function(e) {
         e.preventDefault();
         // thanks to https://stackoverflow.com/questions/16215771/how-to-open-select-file-dialog-via-js
@@ -754,7 +754,7 @@ function add_user_project(key, id, x, y) {
   </head>
   <body>
     <table><tr>
-        <td style="width:300px;vertical-align: top;">
+        <td style="max-width:180px;vertical-align: top;">
             <a class="loqc_button_2_inactive" href="#" id='save' >Save</a>
             <a class="loqc_button_2" href="#" id='delete_selection' title="Delete selection">Delete</a>
             <div style="width:200;height:32;flex-flow:row;">
