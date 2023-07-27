@@ -16,7 +16,7 @@ class Project(models.Model):
     
 
 class LODevice(models.Model):
-    id = models.CharField(max_length=50)
+    id = models.CharField(max_length=50, primary_key=True)
     type = models.CharField(max_length=50)
     theta = models.CharField(max_length=50)
     phi = models.CharField(max_length=50)

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block "content" %}
   <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-body-tertiary" style="width: 250px;height: 670;">
     <a href="/LODesigner/create_project" class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none border-bottom">
@@ -7,7 +8,7 @@
     </a>
     <div class="list-group list-group-flush border-bottom scrollarea">
       {% for project in  projects %}
-      <a href="#" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
+      <a href="#" OnClick="LoadProject({{project.id}}, '{% url 'lo_designer' project_key=2 %}');" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
         <div class="d-flex w-100 align-items-center justify-content-between">
           <strong class="mb-1">{{project.name}}</strong>
           <small>{{project.updated.date}}</small>
@@ -17,5 +18,8 @@
       {% endfor %}
     </div>
   </div>
-  <iframe src="{% url 'lo_designer' %}" title="description" style="max-height: 670; max-width: 1400;height:720;width:1400;"></iframe>
+  <iframe id="project_iframe" src="{% url 'lo_designer' project_key="-1" %}" title="description" style="max-height: 670; max-width: 1400;height:720;width:1400;"></iframe>
 {% endblock "content" %}
+{% block "footer_scripts" %}
+<script src="{% static 'js/projects.js' %}"></script>
+{% endblock "footer_scripts" %}

@@ -514,21 +514,18 @@ document.addEventListener("DOMContentLoaded",function () {
     });
     $("#save").click(function(e) {
         e.preventDefault();
-        $.get('/clear_design/', {id: '{{ project_key }}' }, function(data) {
-            canvas.figures.data.forEach(el => {
-                $.post('/add_cycle_object/', {parent_key: '{{ project_key }}', object_type: "LODevice", 
-                    data: JSON.stringify(serialize_object(el)),}, function(data) {});
-            });           
-            canvas.lines.data.forEach(el => {
-                var line_json = JSON.stringify(serialize_connection(el));
-                $.post('/add_cycle_object/', {parent_key: '{{ project_key }}', object_type: "LOConnection", 
-                    data: JSON.stringify({line_json: line_json})}, function(data) {}
-                );            
-            }); 
-            $("#save").removeClass("loqc_button_alert");
-            $("#save").addClass("loqc_button_2_inactive");
-            //$("#activate").click();            
-        });
+        canvas.figures.data.forEach(el => {
+            $.post('add_cycle_object/', {parent_key: '{{ project_key }}', object_type: "LODevice", 
+                data: JSON.stringify(serialize_object(el)),}, function(data) {});
+        }, "json");           
+        canvas.lines.data.forEach(el => {
+            var line_json = JSON.stringify(serialize_connection(el));
+            $.post('add_cycle_object/', {parent_key: '{{ project_key }}', object_type: "LOConnection", 
+                data: JSON.stringify({line_json: line_json})}, function(data) {}
+            );            
+        }, "json"); 
+        $("#save").removeClass("loqc_button_alert");
+        $("#save").addClass("loqc_button_2_inactive");
     });  
     $("#import").click(function(e) {
         e.preventDefault();
