@@ -1,0 +1,89 @@
+hr {margin: 10px 0px 0px 0px}
+body {margin: 10px}
+a.loqc_button:link, a.loqc_button:visited {
+  background-color: rgba(0, 100, 180, 0.7);
+  color: white;
+  padding: 6px 25px;
+  margin: 1px 1px 1px 1px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  width: 120px;
+}
+
+a.loqc_button:hover, a.loqc_button:active {
+  background-color: rgba(0, 100, 180, 0.5);
+}
+a.loqc_button_2:link, a.loqc_button_2:visited {
+  background-color: rgba(0, 140, 160, 0.7);
+  color: white;
+  padding: 7px 25px;
+  margin: 1px 1px 1px 1px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  width: 120px;
+}
+
+a.loqc_button_2:hover, a.loqc_button_2:active {
+  background-color: rgba(0, 140, 160, 0.5);
+}
+
+a.loqc_button_2_inactive:link, a.loqc_button_2_inactive:visited {
+  background-color: rgba(0, 140, 160, 0.3);
+  color: white;
+  padding: 7px 25px;
+  margin: 1px 1px 1px 1px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  width: 120px;
+}
+
+a.loqc_button_2_inactive:hover, a.loqc_button_2_inactive:active {
+  background-color: rgba(0, 140, 160, 0.3);
+}
+
+a.loqc_button_alert:link, a.loqc_button_alert:visited {
+  background-color: rgba(255, 140, 60, 0.7);
+  color: white;
+  padding: 7px 25px;
+  margin: 1px 1px 1px 1px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  width: 120px;
+}
+
+a.loqc_button_alert:hover, a.loqc_button_alert:active {
+  background-color: rgba(255, 140, 60, 0.5);
+}
+
+
+body {	
+    height: 100%;   
+    background-color: #fff;            
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}		

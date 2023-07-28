@@ -18,7 +18,7 @@
       {% endfor %}
     </div>
   </div>
-  <iframe id="project_iframe" src="{% url 'lo_designer' project_key="-1" %}" title="description" style="max-height: 670; max-width: 1400;height:720;width:1400;"></iframe>
+  <iframe id="project_iframe" src="{% url 'lo_designer' project_key=-1 %}" title="description" style="max-height: 670; max-width: 1400;height:720;width:1400;"></iframe>
 {% endblock "content" %}
 {% block "footer_scripts" %}
 <script src="{% static 'js/projects.js' %}"></script>

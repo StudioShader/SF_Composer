@@ -27,6 +27,7 @@ class LODevice(models.Model):
     project_key = models.ForeignKey(Project, on_delete=models.CASCADE)
 
 class LOConnection(models.Model):
+    project_key = models.ForeignKey(Project, on_delete=models.CASCADE, default=2)
     line_json = models.TextField()
 
 class LOCircuit(models.Model):
