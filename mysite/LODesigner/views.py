@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from .forms import RegisterForm, ProjectForm
 from .models import Project, LOCircuit, LOConnection, LODevice
+from .serializers import LODeviceSerializer
 import json
 from django.core import serializers
 from django.http import JsonResponse
@@ -62,7 +63,6 @@ def add_cycle_object(request):
             connection = LOConnection(project_key=current_project)
             obj = json.loads(request.POST['data'])
             for key in obj:
-                print(obj[key])
                 setattr(connection, key, obj[key])
             connection.save()
     return HttpResponse("Some http response data")
@@ -87,7 +87,7 @@ def get_object_by_key(request):
         if Project.objects.filter(id=request.GET['key']).exists():
             current_project = Project.objects.get(pk=request.GET['key'])
             serialized_obj = serializers.serialize('json', [current_project])
-            print(JsonResponse(serialized_obj, safe=False))
+            # print(JsonResponse(serialized_obj, safe=False))
             return JsonResponse(serialized_obj, safe=False)
     return HttpResponse("None project was found")
 
@@ -98,9 +98,9 @@ def cycle_objects(request):
     if request.method == 'GET':
         if request.GET['object_type'] == "LODevice":
             devices = LODevice.objects.filter(project_key=request.GET['parent_key'])
-            serialized_devices = serializers.serialize('json', devices)
-            # print(JsonResponse(serialized_devices, safe=False))
-            return JsonResponse(serialized_devices, safe=False)
+            # serialized_devices = serializers.serialize('json', devices)
+            serialized_devices = LODeviceSerializer(devices, many=True)
+            return JsonResponse(serialized_devices.data, safe=False)
         if request.GET['object_type'] == "LOConnection":
             connections = LOConnection.objects.filter(project_key=request.GET['parent_key'])
             serialized_connections = serializers.serialize('json', connections)

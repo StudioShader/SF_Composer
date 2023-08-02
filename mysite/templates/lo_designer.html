@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded",function () {
         port3.on("disconnect", show_port, port3);
         port4.on("connect", hide_port, port4);
         port4.on("disconnect", show_port, port4);
-
+        console.log(d);
         canvas.add( d);
     }
     $("#add_bs").click(function(e) {
@@ -437,8 +437,7 @@ document.addEventListener("DOMContentLoaded",function () {
         canvas.lines.data.forEach(el => {
             var line_json = JSON.stringify(serialize_connection(el));
             $.post('add_cycle_object/', {parent_key: '{{ project_key }}', object_type: "LOConnection", 
-                data: JSON.stringify({line_json: line_json})}, function(data) {}
-            );            
+                data: JSON.stringify({line_json: line_json})}, function(data) {});            
         }, "json"); 
         $("#save").removeClass("loqc_button_alert");
         $("#save").addClass("loqc_button_2_inactive");
@@ -574,8 +573,8 @@ document.addEventListener("DOMContentLoaded",function () {
             } 
 		}); 
         $.get('cycle_objects/', {object_type: "LODevice", parent_key: '{{ project_key }}' }, function(json) {
-            data = JSON.parse(json);
-            data.forEach(el => { load_object(el.fields);});
+            data = json;
+            data.forEach(el => { load_object(el);});
             // lines
             need_lines = true;
             $(document).ajaxStop(function () {
@@ -584,7 +583,7 @@ document.addEventListener("DOMContentLoaded",function () {
                 $.get('cycle_objects/', {object_type: "LOConnection", parent_key: '{{ project_key }}' }, function(json) {                
                     var reader = new draw2d.io.json.Reader();
                     data = JSON.parse(json);
-                    data.forEach(el => {   
+                    data.forEach(el => {
                         reader.unmarshal(canvas, el.fields["line_json"]);
                     });
                 });
