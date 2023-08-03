@@ -6,14 +6,19 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from .forms import RegisterForm, ProjectForm
 from .models import Project, LOCircuit, LOConnection, LODevice
-from .serializers import LODeviceSerializer
+from .serializers import LODeviceSerializer, ProjectSerializer
 import json
 from django.core import serializers
 from django.http import JsonResponse
+from rest_framework.renderers import JSONRenderer
 
 def index(request):
     projects = Project.objects.all()
-    return render(request, "projects_list.html", {"projects": projects})
+    serialized_projects = ProjectSerializer(projects, many=True)
+    final_json = json.dumps(serialized_projects.data)
+    print(serialized_projects.data)
+    print(final_json)
+    return render(request, "projects_list.html", {"projects": projects, "projects_json": final_json})
 
 @xframe_options_sameorigin
 def lodesigner(request, project_key):

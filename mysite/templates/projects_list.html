@@ -7,19 +7,37 @@
       <span class="fs-5 fw-semibold">Create new Project</span>
     </a>
     <div class="list-group list-group-flush border-bottom scrollarea">
-      {% for project in  projects %}
-      <a href="#" OnClick="LoadProject({{project.id}}, '{% url 'lo_designer' project_key=2 %}');" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
-        <div class="d-flex w-100 align-items-center justify-content-between">
-          <strong class="mb-1">{{project.name}}</strong>
-          <small>{{project.updated.date}}</small>
-        </div>
-        <div class="col-10 mb-1 small">{{project.description}}</div>
-      </a>
+      {% for project in projects %}
+        <a href="#"  id="project{{project.id}}" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
+          <div class="d-flex w-100 align-items-center justify-content-between">
+            <strong class="mb-1">{{project.name}}</strong>
+            <small>{{project.updated.date}}</small>
+          </div>
+          <div class="col-10 mb-1 small">{{project.description}}</div>
+        </a>
       {% endfor %}
     </div>
   </div>
   <iframe id="project_iframe" src="{% url 'lo_designer' project_key=-1 %}" title="description" style="max-height: 670; max-width: 1400;height:720;width:1400;"></iframe>
 {% endblock "content" %}
 {% block "footer_scripts" %}
-<script src="{% static 'js/projects.js' %}"></script>
+{% comment %} <script src="{% static 'js/projects.js' %}"></script> {% endcomment %}
+<script>
+
+  $(document).ready(function() {
+    projects = JSON.parse(JSON.parse(document.getElementById('projects_data').textContent));
+    projects.forEach(function(project){
+        $("#project" + project.id).on( "click", data={id: project.id}, onclick);
+    });
+  });
+  function onclick(event){
+    id = event.data.id;
+    $('#project_iframe').attr('src', "/LODesigner/lo_designer/"+id);
+    projects.forEach(function(project){
+      $("#project" + project.id).removeClass("active");
+    });
+    $("#project" + id).addClass("active");
+  }
+</script>
+{{ projects_json|json_script:"projects_data" }}
 {% endblock "footer_scripts" %}
