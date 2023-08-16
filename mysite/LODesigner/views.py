@@ -11,13 +11,15 @@ import json
 from django.core import serializers
 from django.http import JsonResponse
 from rest_framework.renderers import JSONRenderer
+from simulation import SFSimulation as sfs
 
 def index(request):
     projects = Project.objects.all()
     serialized_projects = ProjectSerializer(projects, many=True)
     final_json = json.dumps(serialized_projects.data)
-    print(serialized_projects.data)
-    print(final_json)
+    # print(serialized_projects.data)
+    # print(final_json)
+    # sfs.Circuit().simulate()
     return render(request, "projects_list.html", {"projects": projects, "projects_json": final_json})
 
 @xframe_options_sameorigin

@@ -18,12 +18,34 @@
       {% endfor %}
     </div>
   </div>
-  <iframe id="project_iframe" src="{% url 'lo_designer' project_key=-1 %}" title="description" style="max-height: 670; max-width: 1400;height:720;width:1400;"></iframe>
+  <ul style="padding-left:5;">
+  <div style="margin: 5;display: flex;flex-direction: row;"> 
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        backend
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" onclick="changeBackend('Fock')">Fock</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeBackend('Gaussian')">Gaussian</a></li>
+      </ul>
+      <button id="simulate-button" class="btn btn-secondary btn-sm" type="button" aria-expanded="false" onclick="desplayResultsScreen()">
+        simulate
+      </button>
+    </div>
+  </div>
+  <div id="composer-div" style="position: relative;">
+  <div id="results-screen" class="bg-body-tertiary border rounded-3" style="opacity: 0.95;margin:10;width:500;height:500;z-index:-100;position: absolute;top: 0;left: 0;">
+    SOMETEXT
+  </div>
+  <iframe id="project_iframe" src="{% url 'lo_designer' project_key=-1 %}" title="description" style="position: absolute;top: 0;left: 0;z-index:5;max-height: 630; max-width: 1400;height:720;width:1400;"></iframe>
+  </div>  
+</ul>
 {% endblock "content" %}
 {% block "footer_scripts" %}
 {% comment %} <script src="{% static 'js/projects.js' %}"></script> {% endcomment %}
 <script>
-
+  var display_results = true;
+  var backend = 'Fock';
   $(document).ready(function() {
     projects = JSON.parse(JSON.parse(document.getElementById('projects_data').textContent));
     projects.forEach(function(project){
@@ -37,6 +59,29 @@
       $("#project" + project.id).removeClass("active");
     });
     $("#project" + id).addClass("active");
+  }
+  function desplayResultsScreen(){
+    if(display_results == true){
+      display_results = false;
+      $("#results-screen").css("z-index", "100");
+    }else{
+      display_results = true;
+      $("#results-screen").css("z-index", "-100");
+    }
+  }
+  function changeBackend(backend){
+    switch(backend) {
+      case 'Fock':
+        backend = 'Fock';
+        console.log('Fock');
+        break;
+      case 'Gaussian':
+        backend = 'Gaussian';
+        console.log('Gaussian');
+        break;
+      default:
+        // code block
+    }
   }
 </script>
 {{ projects_json|json_script:"projects_data" }}
