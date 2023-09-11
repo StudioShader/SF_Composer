@@ -2,15 +2,13 @@
 '''
 Created on 05.04.2013
 
-@author: sysoev
+@author: ivan ogloblin
 '''
-from google.appengine.ext import db
-from google.appengine.api import users
-from google.appengine.api import images
+
 
 import datetime
 import json
-import loqc
+from simulation import loqc
 import re
 
 def force_unicode(string):

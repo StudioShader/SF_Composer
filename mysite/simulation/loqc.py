@@ -61,13 +61,52 @@ def print_result(input):
     init_printing()
     return expand(input.xreplace(dict([(n,0) for n in input.atoms(Float) if abs(n) < 1e-12])))  
 
+def ProcessConns(conns, devices):
+    devs = [{"id": d.id, "type": d.type, "theta": d.theta, "phi": d.phi, "n": d.n, "input_type": d.input_type, "x": d.x, "y": d.y, 
+            "inputs": [], "outputs": [], "step": -1, "modes": [], "project_key": d.project_key} for d in devices]
+    for c in conns:
+        con = json.loads(c.line_json)
+        source_node = con[0]['source']['node']
+        source_port = con[0]['source']['port']
+        target_node = con[0]['target']['node']
+        target_port = con[0]['target']['port']
+        for d in devs:
+            if d['id'] == source_node:
+                source_dev = d
+            if d['id'] == target_node:
+                target_dev = d
+        if (not source_dev) or not (target_dev):
+            return None
+        if source_dev['type'] == "OUT" or target_dev['type'] == "IN":
+            source_node = con[0]['target']['node']
+            source_port = con[0]['target']['port']
+            target_node = con[0]['source']['node']
+            target_port = con[0]['source']['port']
+            tmp = source_dev
+            source_dev = target_dev
+            target_dev = tmp
+        elif source_dev['type'] == "IN" or target_dev['type'] == "OUT":
+            pass
+        elif source_port in ["hybrid" + str(2*i) for i in range(50)]:
+            source_node = con[0]['target']['node']
+            source_port = con[0]['target']['port']
+            target_node = con[0]['source']['node']
+            target_port = con[0]['source']['port']
+            tmp = source_dev
+            source_dev = target_dev
+            target_dev = tmp  
+        source_dev['outputs'].append(target_node)
+        target_dev['inputs'].append(source_node)
+        target_dev['modes'].append({'my_port': target_port, 'source': source_node, 'source_port': source_port, 'mode': -1})
+    return devs
+
 def ConstructCircuit(devs, modes): 
     circuit = []
     circuit.append(np.identity(modes, dtype = 'complex_'))
     input = "1"
 
     # process inputs
-    inputs = [a for a in devs if a['type'] == "IN"]   
+    inputs = [a for a in devs if a['type'] == "IN"]    
     for d in inputs:
         if d['n'] != "-":
             n = int(d['n'])

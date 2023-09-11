@@ -25,17 +25,28 @@
         backend
       </button>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" onclick="changeBackend('Fock')">Fock</a></li>
-        <li><a class="dropdown-item" href="#" onclick="changeBackend('Gaussian')">Gaussian</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeBackend('fock')">Fock</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeBackend('gaussian')">Gaussian</a></li>
       </ul>
-      <button id="simulate-button" class="btn btn-secondary btn-sm" type="button" aria-expanded="false" onclick="desplayResultsScreen()">
+      <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Simulation
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" onclick="changeMeasurements(true)">state samples</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeMeasurements(false)">gaussian_unitary</a></li>
+      </ul>
+      <button id="simulate-button" class="btn btn-secondary btn-sm" type="button" aria-expanded="false" onclick="GetSimulationResults()">
         simulate
       </button>
     </div>
   </div>
   <div id="composer-div" style="position: relative;">
-  <div id="results-screen" class="bg-body-tertiary border rounded-3" style="opacity: 0.95;margin:10;width:500;height:500;z-index:-100;position: absolute;top: 0;left: 0;">
-    SOMETEXT
+  <div id="results-screen" class="bg-body-tertiary border rounded-3" style="opacity: 0.95;margin:10;width:900;height:600;z-index:-100;position: absolute;top: 0;left: 0;">
+    {% comment %} <iframe id="project_simulation_iframe" src="{% url 'simulate' project_key=-1 %}" title="description" style="position: absolute;top: 0;left: 0;"></iframe> {% endcomment %}
+    <div style="margin-left: auto;">
+      <div id="project_simulation_iframe"><p align="center">Please wait for the results</p></div>
+      <div style="text-align: center; margin-left: auto; margin-right: auto;"><div id="spinner_spinner" class="spinner-border" role="status" style="opacity: 0"></div></div>
+    </div>
   </div>
   <iframe id="project_iframe" src="{% url 'lo_designer' project_key=-1 %}" title="description" style="position: absolute;top: 0;left: 0;z-index:5;max-height: 630; max-width: 1400;height:720;width:1400;"></iframe>
   </div>  
@@ -46,6 +57,9 @@
 <script>
   var display_results = true;
   var backend = 'Fock';
+  var global_id = -1;
+  var global_current_simulated = false;
+  var measurements = false
   $(document).ready(function() {
     projects = JSON.parse(JSON.parse(document.getElementById('projects_data').textContent));
     projects.forEach(function(project){
@@ -54,6 +68,7 @@
   });
   function onclick(event){
     id = event.data.id;
+    global_id = event.data.id;
     $('#project_iframe').attr('src', "/LODesigner/lo_designer/"+id);
     projects.forEach(function(project){
       $("#project" + project.id).removeClass("active");
@@ -61,6 +76,12 @@
     $("#project" + id).addClass("active");
   }
   function desplayResultsScreen(){
+    if(!global_current_simulated){
+      // insert loading gif
+      //$('#project_simulation_iframe').attr('src', "/LODesigner/simulate"+global_id);
+      $("#spinner_spinner").css("opacity", "1");
+      global_current_simulated = true;
+    }
     if(display_results == true){
       display_results = false;
       $("#results-screen").css("z-index", "100");
@@ -69,19 +90,29 @@
       $("#results-screen").css("z-index", "-100");
     }
   }
-  function changeBackend(backend){
-    switch(backend) {
-      case 'Fock':
-        backend = 'Fock';
-        console.log('Fock');
-        break;
-      case 'Gaussian':
-        backend = 'Gaussian';
-        console.log('Gaussian');
-        break;
-      default:
-        // code block
-    }
+  function GetSimulationResults(){
+    desplayResultsScreen()
+    var simulation = $.ajax({
+      type: "GET",
+      url: "http://127.0.0.1:8000/LODesigner/simulate/" + global_id,
+      data: {
+        backend: backend,
+        measurements: measurements,
+      },
+      async: true
+    });
+    console.log(measurements)
+    simulation.done(function(json) {
+      console.log(json);
+      document.getElementById("project_simulation_iframe").innerHTML = json;
+      $("#spinner_spinner").css("opacity", "0");
+    });
+  }
+  function changeBackend(back){
+    backend = back
+  }
+  function changeMeasurements(mess){
+    measurements = mess
   }
 </script>
 {{ projects_json|json_script:"projects_data" }}

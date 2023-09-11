@@ -11,6 +11,7 @@ urlpatterns = [
     path("lo_designer/get_object_by_key/", views.get_object_by_key, name="get_object_by_key"),
     path("lo_designer/cycle_objects/", views.cycle_objects, name="cycle_objects"),
     path('lo_designer/<str:project_key>', views.lodesigner, name='lo_designer'),
+    path('simulate/<str:project_key>', views.simulate, name='simulate'),
     path("sign-up/", views.sign_up, name="sign_up"),
     path("create_project/", views.create_project, name="create_project"),
 
