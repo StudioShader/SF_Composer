@@ -21,19 +21,19 @@
   <ul style="padding-left:5;">
   <div style="margin: 5;display: flex;flex-direction: row;"> 
     <div class="dropdown">
-      <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <button id="backend_choice" class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         backend
       </button>
       <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="#" onclick="changeBackend('fock')">Fock</a></li>
         <li><a class="dropdown-item" href="#" onclick="changeBackend('gaussian')">Gaussian</a></li>
       </ul>
-      <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <button id="simulation_choice"class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Simulation
       </button>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" onclick="changeMeasurements(true)">state samples</a></li>
-        <li><a class="dropdown-item" href="#" onclick="changeMeasurements(false)">gaussian_unitary</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeSimulation('state_samples')">state samples</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeSimulation('gaussian_unitary')">gaussian_unitary</a></li>
       </ul>
       <button id="simulate-button" class="btn btn-secondary btn-sm" type="button" aria-expanded="false" onclick="GetSimulationResults()">
         simulate
@@ -110,9 +110,11 @@
   }
   function changeBackend(back){
     backend = back
+    document.getElementById("backend_choice").innerText = back
   }
-  function changeMeasurements(mess){
+  function changeSimulation(mess){
     measurements = mess
+    document.getElementById("simulation_choice").innerText = mess
   }
 </script>
 {{ projects_json|json_script:"projects_data" }}

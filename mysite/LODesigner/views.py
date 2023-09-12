@@ -153,6 +153,8 @@ def cycle_objects(request):
 @login_required(login_url="/login")
 def simulate(request, project_key):
     if request.method == "GET":
+        if project_key == -1:
+            return HttpResponse("none project selected yet, please select a project")
         print(request.GET.get("backend"))
         if project_key != -1:
             devices = LODevice.objects.filter(project_key=project_key)
@@ -162,7 +164,7 @@ def simulate(request, project_key):
             result = sfs.Circuit(
                 name=("circuit" + str(project_key)),
                 backend=request.GET.get("backend"),
-                measurements=request.GET.get("measurements"),
+                simulation_option=request.GET.get("measurements"),
             ).construct_circuit(project_key, devices, connections)
             # serialized_U = [[str(element) for element in string] for string in U]
             # data = json.dumps(U, cls=NumpyArrayEncoder)

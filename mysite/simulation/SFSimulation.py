@@ -18,15 +18,14 @@ class Circuit:
     name = "somename"
     backend = "fock"
     backend_options = {"cutoff_dim": 7}
-    measurements = False
+    simulation_option = "gaussian_unitary"
     structured_devices = []
     cons = []
 
-    def __init__(self, name, backend, measurements) -> None:
+    def __init__(self, name, backend, simulation_option) -> None:
         self.name = name
         self.backend = backend
-        self.measurements = measurements == "true"
-        print("measurement: ", measurements)
+        self.simulation_option = simulation_option
 
     def simulate(self):
         return None
@@ -87,10 +86,25 @@ class Circuit:
             result += "<br />"
         return result
 
+    def get_all_perms(self, photons, modes):
+        if photons == 0:
+            return [np.zeros(modes)]
+        if modes == 0:
+            return [[]]
+        result = []
+        for i in range(photons):
+            rest = photons - i - 1
+            alls = self.get_all_perms(rest, modes)
+            for one in alls:
+                one += [i + 1]
+            result += alls
+        return result
+
     def construct_circuit(self, project_key, devices, connections):
         modes = []
         number_of_input_modes = 0
         number_of_output_modes = 0
+        number_of_photons = 0
         for dev in devices:
             if dev.type == "IN":
                 modes += [[dev.id, "hybrid0", dev]]
@@ -133,7 +147,8 @@ class Circuit:
             # prepare the input states
             for dev_info in self.structured_devices:
                 if dev_info[0].type == "IN":
-                    if self.measurements:
+                    number_of_photons += int(dev_info[0].n)
+                    if self.simulation_option == "state_samples":
                         Fock(int(dev_info[0].n)) | q[dev_info[1][0]]
                 elif dev_info[0].type == "BS":
                     BSgate(float(dev_info[0].theta), float(dev_info[0].phi)) | (
@@ -143,15 +158,17 @@ class Circuit:
                 elif dev_info[0].type == "PS":
                     Rgate(float(dev_info[0].phi)) | q[dev_info[1][0]]
                 elif dev_info[0].type == "OUT":
-                    if self.measurements:
+                    if self.simulation_option == "state_samples":
                         MeasureFock() | q[dev_info[1][0]]
-        if self.measurements:
-            print("what?")
+        if self.simulation_option == "state_samples":
             eng = sf.Engine(backend=self.backend, backend_options=self.backend_options)
             results = eng.run(boson_sampling)
-            return str(results.samples)
+            probs = results.state.all_fock_probs()
+            state = list(np.zeros(number_of_input_modes))
+            bin = range(number_of_photons)
+            print(self.get_all_perms(number_of_photons, number_of_input_modes))
+            return str(probs)
         else:
-            print("what the heck?")
             prog_unitary = sf.Program(number_of_input_modes)
             prog_unitary.circuit = boson_sampling.circuit
             prog_compiled = prog_unitary.compile(compiler="gaussian_unitary")
