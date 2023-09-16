@@ -21,6 +21,7 @@ class Circuit:
     simulation_option = "gaussian_unitary"
     structured_devices = []
     cons = []
+    probabilities = []
 
     def __init__(self, name, backend, simulation_option) -> None:
         self.name = name
@@ -55,7 +56,7 @@ class Circuit:
                     [device.id, "hybrid3"],
                 ]
             return None, None
-        if device.type == "PS":
+        if device.type == "PS" or device.type == "S":
             ports = {"hybrid0": -1, "hybrid1": -1}
             for con in self.cons:
                 if con[0]["node"] == device.id:
@@ -86,19 +87,41 @@ class Circuit:
             result += "<br />"
         return result
 
+    def beautify_state_probs(self, photons, modes):
+        all_states = []
+        for i in range(photons + 3):
+            all_states += self.get_all_perms(i, modes)
+        result = ""
+        results = []
+        for state in all_states:
+            results += [(state, self.get_prob_by_state(state))]
+        results.sort(key=lambda a: a[1], reverse=True)
+        print(results)
+        for state, prob in results:
+            result += str(state) + ": " + str(prob) + " <br />"
+        return result
+
     def get_all_perms(self, photons, modes):
-        if photons == 0:
-            return [np.zeros(modes)]
         if modes == 0:
             return [[]]
+        if photons == 0:
+            return [[0] * modes]
+        if modes == 1:
+            return [[photons]]
         result = []
-        for i in range(photons):
-            rest = photons - i - 1
-            alls = self.get_all_perms(rest, modes)
+        for i in range(photons + 1):
+            rest = photons - i
+            alls = self.get_all_perms(rest, modes - 1)
             for one in alls:
-                one += [i + 1]
+                one += [i]
             result += alls
         return result
+
+    def get_prob_by_state(self, state):
+        current = self.probabilities
+        for i in range(len(state)):
+            current = current[state[i]]
+        return current
 
     def construct_circuit(self, project_key, devices, connections):
         modes = []
@@ -148,26 +171,43 @@ class Circuit:
             for dev_info in self.structured_devices:
                 if dev_info[0].type == "IN":
                     number_of_photons += int(dev_info[0].n)
-                    if self.simulation_option == "state_samples":
+                    if self.simulation_option == "state_probabilities":
+                        print("Fock", dev_info[0].n, "  ", dev_info[1][0])
                         Fock(int(dev_info[0].n)) | q[dev_info[1][0]]
                 elif dev_info[0].type == "BS":
+                    print(
+                        "BS",
+                        dev_info[0].theta,
+                        "  ",
+                        dev_info[1][0],
+                        "  ",
+                        dev_info[1][1],
+                    )
                     BSgate(float(dev_info[0].theta), float(dev_info[0].phi)) | (
                         q[dev_info[1][0]],
                         q[dev_info[1][1]],
                     )
                 elif dev_info[0].type == "PS":
+                    print("Rgate", dev_info[0].phi, "  ", dev_info[1][0])
                     Rgate(float(dev_info[0].phi)) | q[dev_info[1][0]]
+                elif dev_info[0].type == "S":
+                    print("Sgate", dev_info[0].theta, "  ", dev_info[1][0])
+                    Sgate(float(dev_info[0].theta), float(dev_info[0].phi)) | q[
+                        dev_info[1][0]
+                    ]
                 elif dev_info[0].type == "OUT":
-                    if self.simulation_option == "state_samples":
+                    if (
+                        self.simulation_option != "state_probabilities"
+                        and self.simulation_option != "gaussian_unitary"
+                    ):
                         MeasureFock() | q[dev_info[1][0]]
-        if self.simulation_option == "state_samples":
+        if self.simulation_option == "state_probabilities":
             eng = sf.Engine(backend=self.backend, backend_options=self.backend_options)
             results = eng.run(boson_sampling)
             probs = results.state.all_fock_probs()
-            state = list(np.zeros(number_of_input_modes))
-            bin = range(number_of_photons)
-            print(self.get_all_perms(number_of_photons, number_of_input_modes))
-            return str(probs)
+            self.probabilities = probs
+            print(number_of_photons, number_of_input_modes)
+            return self.beautify_state_probs(number_of_photons, number_of_input_modes)
         else:
             prog_unitary = sf.Program(number_of_input_modes)
             prog_unitary.circuit = boson_sampling.circuit

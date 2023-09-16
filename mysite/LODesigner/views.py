@@ -132,11 +132,13 @@ def get_object_by_key(request):
 @csrf_exempt
 @login_required(login_url="/login")
 def cycle_objects(request):
+    print("cycle_objects")
     if request.method == "GET":
         if request.GET["object_type"] == "LODevice":
             devices = LODevice.objects.filter(project_key=request.GET["parent_key"])
             # serialized_devices = serializers.serialize('json', devices)
             serialized_devices = LODeviceSerializer(devices, many=True)
+            print(JsonResponse(serialized_devices.data, safe=False))
             return JsonResponse(serialized_devices.data, safe=False)
         if request.GET["object_type"] == "LOConnection":
             connections = LOConnection.objects.filter(

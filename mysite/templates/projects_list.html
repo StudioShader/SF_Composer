@@ -32,8 +32,8 @@
         Simulation
       </button>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" onclick="changeSimulation('state_samples')">state samples</a></li>
-        <li><a class="dropdown-item" href="#" onclick="changeSimulation('gaussian_unitary')">gaussian_unitary</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeSimulation('state_probabilities')">state probabilities</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeSimulation('gaussian_unitary')">gaussian unitary</a></li>
       </ul>
       <button id="simulate-button" class="btn btn-secondary btn-sm" type="button" aria-expanded="false" onclick="GetSimulationResults()">
         simulate
@@ -41,7 +41,7 @@
     </div>
   </div>
   <div id="composer-div" style="position: relative;">
-  <div id="results-screen" class="bg-body-tertiary border rounded-3" style="opacity: 0.95;margin:10;width:900;height:600;z-index:-100;position: absolute;top: 0;left: 0;">
+  <div id="results-screen" class="bg-body-tertiary border rounded-3" style="overflow: auto; opacity: 0.95;margin:10;width:900;height:600;z-index:-100;position: absolute;top: 0;left: 0;">
     {% comment %} <iframe id="project_simulation_iframe" src="{% url 'simulate' project_key=-1 %}" title="description" style="position: absolute;top: 0;left: 0;"></iframe> {% endcomment %}
     <div style="margin-left: auto;">
       <div id="project_simulation_iframe"><p align="center">Please wait for the results</p></div>
@@ -101,10 +101,12 @@
       },
       async: true
     });
-    console.log(measurements)
     simulation.done(function(json) {
-      console.log(json);
       document.getElementById("project_simulation_iframe").innerHTML = json;
+      $("#spinner_spinner").css("opacity", "0");
+    });
+    simulation.fail(function(jqXHR, textStatus, errorThrown){
+      document.getElementById("project_simulation_iframe").innerHTML = "Got some error: " + errorThrown + "<br/>Please do check if your setup is correct, and if everything seems right - contact me on ivanogloblin2022@gmail.com";
       $("#spinner_spinner").css("opacity", "0");
     });
   }

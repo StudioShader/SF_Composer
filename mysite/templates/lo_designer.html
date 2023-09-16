@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded",function () {
             cur_figure = null;
             if(figure!=null) {
                 var fig;
-                var figure_types = ["BS", "PS", "IN", "OUT"];
+                var figure_types = ["BS", "PS", "IN", "OUT", "S"];
                 if (figure_types.includes(figure["type"])) {
                     fig = figure;                  
                 } else {
@@ -147,13 +147,19 @@ document.addEventListener("DOMContentLoaded",function () {
                 if (fig) {
                     cur_figure = fig;
                     $("#controls").show();
+                    if (fig["type"] == "S") {
+                        $("#r_input").val(parseFloat(fig["theta"]));
+                        $("#r").show();
+                    } else {
+                        $("#r").hide();
+                    }
                     if (fig["type"] == "BS") {
                         $("#theta_input").val(parseFloat(fig["theta"]));
                         $("#theta").show();
                     } else {
                         $("#theta").hide();
                     }
-                    if (fig["type"] == "BS" || fig["type"] == "PS") {
+                    if (fig["type"] == "BS" || fig["type"] == "PS" || fig["type"] == "S") {
                         $("#phi_input").val(parseFloat(fig["phi"]));
                         $("#phi").show();
                     } else {
@@ -275,7 +281,7 @@ document.addEventListener("DOMContentLoaded",function () {
         if (id) {
             d["id"] = id;
         }
-        d.label = new draw2d.shape.basic.Label({text:Number(phi).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.label = new draw2d.shape.basic.Label({text:"R\n"+Number(phi).toFixed(1), fontColor:"#0d0d0d", stroke:0});
         d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
         var inputLocator  = new draw2d.layout.locator.InputPortLocator({width:10, height:10});
         var outputLocator = new draw2d.layout.locator.OutputPortLocator();
@@ -292,6 +298,35 @@ document.addEventListener("DOMContentLoaded",function () {
     $("#add_ps").click(function(e) {
         e.preventDefault();
         add_ps(100, 100, 180.0, null);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });
+    function add_s(x, y, r, phi, id) {
+        var d = new draw2d.shape.basic.Rectangle({width:35, height:60, x:x, y:y});
+        d.setBackgroundColor("#DAEB96");
+        d["type"] = "S";
+        d["theta"] = r;
+        d["phi"] = phi;
+        if (id) {
+            d["id"] = id;
+        }
+        d.label = new draw2d.shape.basic.Label({text:"S\n"+Number(r).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
+        var inputLocator  = new draw2d.layout.locator.InputPortLocator({width:10, height:10});
+        var outputLocator = new draw2d.layout.locator.OutputPortLocator();
+
+        port1_in = d.createPort("hybrid",inputLocator);
+        port1_out = d.createPort("hybrid",outputLocator);
+        port1_in.on("connect", hide_port, port1_in);
+        port1_in.on("disconnect", show_port, port1_in);
+        port1_out.on("connect", hide_port, port1_out);
+        port1_out.on("disconnect", show_port, port1_out);
+
+        canvas.add( d);    
+    }
+    $("#add_s").click(function(e) {
+        e.preventDefault();
+        add_s(100, 100, 1.0, 0.0, null);
         $("#save").removeClass("loqc_button_2_inactive");
         $("#save").addClass("loqc_button_alert");
     });
@@ -490,10 +525,19 @@ document.addEventListener("DOMContentLoaded",function () {
             if (cur_figure["type"] == "PS") {
                 phi = parseFloat($("#phi_input").val());
                 cur_figure["phi"] = $("#phi_input").val();
-                cur_figure.label.text = Number((phi).toFixed(1));
+                cur_figure.label.text = "R\n" + Number((phi).toFixed(1));
                 cur_figure.label.repaint();
                 return;
-            }    
+            }
+            if (cur_figure["type"] == "S") {
+                phi = parseFloat($("#phi_input").val());
+                cur_figure["phi"] = $("#phi_input").val();
+                r = parseFloat($("#r_input").val());
+                cur_figure["theta"] = $("#r_input").val();
+                cur_figure.label.text = "S\n" + Number((r).toFixed(1));
+                cur_figure.label.repaint();
+                return;
+            }  
             if (cur_figure["type"] == "IN" || cur_figure["type"] == "OUT") {
                 n_val = $("#n_input").val();
                 if (n_val) {
@@ -550,6 +594,9 @@ document.addEventListener("DOMContentLoaded",function () {
         }
         if (el.type == "PS") {
             add_ps(el.x, el.y, el.phi, el.id);
+        }
+        if (el.type == "S") {
+            add_s(el.x, el.y,el.theta, el.phi, el.id);
         }
         if (el.type == "IN") {
             add_input(el.x, el.y, el.n, el.id, el.input_type);
@@ -680,12 +727,14 @@ function add_user_project(key, id, x, y) {
             <hr></hr>
             <a class="loqc_button" href="#" id='add_bs' >BSgate</a>
             <a class="loqc_button" href="#" id='add_ps' >Rgate</a>
+            <a class="loqc_button" href="#" id='add_s' >Sgate</a>
             <a class="loqc_button" href="#" id='add_input' >Fock input</a>
             {% comment %} <a class="loqc_button" href="#" id='add_ancilla_input' >Ancilla Input</a> {% endcomment %}
             {% comment %} <a class="loqc_button" href="#" id='add_control_input' >Control Input</a> {% endcomment %}
             <a class="loqc_button" href="#" id='add_output' >Photon Detection<!--<span class="tooltiptext">Single photon detection</span>--></a>
             <table id="controls" style="display:none;">
                 <tr id="theta"><td style="width:20px;"><b>&theta;</b></td><td><input type="number" id="theta_input" value="" style="min-height:15px;width:130px;"/></td></tr>
+                <tr id="r"><td style="width:20px;"><b>r</b></td><td><input type="number" id="r_input" value="" style="min-height:15px;width:130px;"/></td></tr>
                 <tr id="phi"><td style="width:20px;"><b>&phi;</b></td><td><input type="number" id="phi_input" value="" style="min-height:15px;width:130px;"/></td></tr>
                 <tr id="n"><td style="width:20px;"><b>n</b></td><td><input type="number" id="n_input" value="" style="min-height:15px;width:130px;"/></td></tr>
                 <tr><td colspan="2"><a class="loqc_button_2" href="#" id='set' >Set</a></td></tr>                
