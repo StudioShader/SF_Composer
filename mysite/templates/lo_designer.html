@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded",function () {
             cur_figure = null;
             if(figure!=null) {
                 var fig;
-                var figure_types = ["BS", "PS", "IN", "OUT", "S"];
+                var figure_types = ["BS", "PS", "IN", "COIN", "D", "P", "V", "CX", "S", "OUT", "OUTHOM", "OUTHET"];
                 if (figure_types.includes(figure["type"])) {
                     fig = figure;                  
                 } else {
@@ -147,11 +147,23 @@ document.addEventListener("DOMContentLoaded",function () {
                 if (fig) {
                     cur_figure = fig;
                     $("#controls").show();
-                    if (fig["type"] == "S") {
+                    if (fig["type"] == "S" || fig["type"] == "D" || fig["type"] == "COIN") {
                         $("#r_input").val(parseFloat(fig["theta"]));
                         $("#r").show();
                     } else {
                         $("#r").hide();
+                    }
+                    if (fig["type"] == "P" || fig["type"] == "CX") {
+                        $("#s_input").val(parseFloat(fig["theta"]));
+                        $("#s").show();
+                    } else {
+                        $("#s").hide();
+                    }
+                    if (fig["type"] == "V") {
+                        $("#gamma_input").val(parseFloat(fig["theta"]));
+                        $("#gamma").show();
+                    } else {
+                        $("#gamma").hide();
                     }
                     if (fig["type"] == "BS") {
                         $("#theta_input").val(parseFloat(fig["theta"]));
@@ -159,13 +171,13 @@ document.addEventListener("DOMContentLoaded",function () {
                     } else {
                         $("#theta").hide();
                     }
-                    if (fig["type"] == "BS" || fig["type"] == "PS" || fig["type"] == "S") {
+                    if (fig["type"] == "BS" || fig["type"] == "PS" || fig["type"] == "S" || fig["type"] == "D" || fig["type"] == "OUTHOM" || fig["type"] == "COIN") {
                         $("#phi_input").val(parseFloat(fig["phi"]));
                         $("#phi").show();
                     } else {
                         $("#phi").hide();
                     }
-                    if (fig["type"] == "IN" || fig["type"] == "OUT") {
+                    if (fig["type"] == "IN") {
                         if (fig["N"] == -1) {
                             $("#n_input").val("");
                         } else {
@@ -272,7 +284,37 @@ document.addEventListener("DOMContentLoaded",function () {
         $("#save").removeClass("loqc_button_2_inactive");
         $("#save").addClass("loqc_button_alert");
     });
-
+    function add_cx(x, y, s, id) {
+        var d = new draw2d.shape.basic.Rectangle({width:60, height:60, x:x, y:y});
+        d.setBackgroundColor("#AEEBCB")
+        d["type"] = "CX";
+        d["theta"] = s;
+        if (id) {
+            d["id"] = id;
+        }
+        d.label = new draw2d.shape.basic.Label({text:"CX\n" + Number(s).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
+       
+        port1 = d.createPort("hybrid",new MyInputPortLocatorTop());
+        port2 = d.createPort("hybrid",new MyOutputPortLocatorTop());
+        port3 = d.createPort("hybrid",new MyInputPortLocatorBottom());
+        port4 = d.createPort("hybrid",new MyOutputPortLocatorBottom());
+        port1.on("connect", hide_port, port1);
+        port1.on("disconnect", show_port, port1);
+        port2.on("connect", hide_port, port2);
+        port2.on("disconnect", show_port, port2);
+        port3.on("connect", hide_port, port3);
+        port3.on("disconnect", show_port, port3);
+        port4.on("connect", hide_port, port4);
+        port4.on("disconnect", show_port, port4);
+        canvas.add( d);
+    }
+    $("#add_cx").click(function(e) {
+        e.preventDefault();
+        add_cx(100, 100, 1.0, null);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });
     function add_ps(x, y, phi, id) {
         var d = new draw2d.shape.basic.Rectangle({width:35, height:60, x:x, y:y});
         d.setBackgroundColor({red: 200, green: 200, blue: 200, alpha: 0.5})
@@ -330,6 +372,91 @@ document.addEventListener("DOMContentLoaded",function () {
         $("#save").removeClass("loqc_button_2_inactive");
         $("#save").addClass("loqc_button_alert");
     });
+    function add_d(x, y, r, phi, id) {
+        var d = new draw2d.shape.basic.Rectangle({width:35, height:60, x:x, y:y});
+        d.setBackgroundColor("#EB948A");
+        d["type"] = "D";
+        d["theta"] = r;
+        d["phi"] = phi;
+        if (id) {
+            d["id"] = id;
+        }
+        d.label = new draw2d.shape.basic.Label({text:"D\n"+Number(r).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
+        var inputLocator  = new draw2d.layout.locator.InputPortLocator({width:10, height:10});
+        var outputLocator = new draw2d.layout.locator.OutputPortLocator();
+
+        port1_in = d.createPort("hybrid",inputLocator);
+        port1_out = d.createPort("hybrid",outputLocator);
+        port1_in.on("connect", hide_port, port1_in);
+        port1_in.on("disconnect", show_port, port1_in);
+        port1_out.on("connect", hide_port, port1_out);
+        port1_out.on("disconnect", show_port, port1_out);
+
+        canvas.add( d);    
+    }
+    $("#add_d").click(function(e) {
+        e.preventDefault();
+        add_d(100, 100, 1.0, 0.0, null);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });
+    function add_p(x, y, s, id) {
+        var d = new draw2d.shape.basic.Rectangle({width:35, height:60, x:x, y:y});
+        d.setBackgroundColor("#A9EBA1");
+        d["type"] = "P";
+        d["theta"] = s;
+        if (id) {
+            d["id"] = id;
+        }
+        d.label = new draw2d.shape.basic.Label({text:"P\n"+Number(s).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
+        var inputLocator  = new draw2d.layout.locator.InputPortLocator({width:10, height:10});
+        var outputLocator = new draw2d.layout.locator.OutputPortLocator();
+
+        port1_in = d.createPort("hybrid",inputLocator);
+        port1_out = d.createPort("hybrid",outputLocator);
+        port1_in.on("connect", hide_port, port1_in);
+        port1_in.on("disconnect", show_port, port1_in);
+        port1_out.on("connect", hide_port, port1_out);
+        port1_out.on("disconnect", show_port, port1_out);
+
+        canvas.add( d);    
+    }
+    $("#add_p").click(function(e) {
+        e.preventDefault();
+        add_p(100, 100, 1.0, null);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });
+    function add_v(x, y, gamma, id) {
+        var d = new draw2d.shape.basic.Rectangle({width:35, height:60, x:x, y:y});
+        d.setBackgroundColor("#D9B9EB");
+        d["type"] = "V";
+        d["theta"] = gamma;
+        if (id) {
+            d["id"] = id;
+        }
+        d.label = new draw2d.shape.basic.Label({text:"V\n"+Number(gamma).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
+        var inputLocator  = new draw2d.layout.locator.InputPortLocator({width:10, height:10});
+        var outputLocator = new draw2d.layout.locator.OutputPortLocator();
+
+        port1_in = d.createPort("hybrid",inputLocator);
+        port1_out = d.createPort("hybrid",outputLocator);
+        port1_in.on("connect", hide_port, port1_in);
+        port1_in.on("disconnect", show_port, port1_in);
+        port1_out.on("connect", hide_port, port1_out);
+        port1_out.on("disconnect", show_port, port1_out);
+
+        canvas.add( d);    
+    }
+    $("#add_v").click(function(e) {
+        e.preventDefault();
+        add_v(100, 100, 1.0, null);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });
     function add_input(x, y, N, id, input_type = 0) {
         var d = new InputFigure({x: x, y:y, width:40, height:40});
         if (input_type == 1) {
@@ -360,7 +487,38 @@ document.addEventListener("DOMContentLoaded",function () {
         add_input(100, 100, "-", null, 0);
         $("#save").removeClass("loqc_button_2_inactive");
         $("#save").addClass("loqc_button_alert");
-    });   
+    });
+    function add_coherent_input(x, y, r, phi, id, input_type = 0) {
+        var d = new InputFigure({x: x, y:y, width:40, height:40});
+        if (input_type == 1) {
+            d.setBackgroundColor({red: 100, green: 100, blue: 100, alpha: 0.5});
+        }
+        if (input_type == 2) {
+            d.setBackgroundColor({red: 100, green: 250, blue: 100, alpha: 0.5});
+        }
+        d["type"] = "COIN";
+        d["phi"] = phi;
+        d["theta"] = r;
+        d["input_type"] = input_type;
+        if (id) {
+            d["id"] = id;
+        }
+        label_text = "Coherent\n" + Number(r);
+        d.label = new draw2d.shape.basic.Label({text:label_text, fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.LeftLocator(d));
+        var outputLocator = new draw2d.layout.locator.OutputPortLocator();
+
+        port1_out = d.createPort("hybrid",outputLocator);
+        port1_out.on("connect", hide_port, port1_out);
+        port1_out.on("disconnect", show_port, port1_out);
+        canvas.add( d);    
+    }
+    $("#add_coherent_input").click(function(e) {
+        e.preventDefault();
+        add_coherent_input(100, 100, 0.0, 0.0, null, 0);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });
     $("#add_ancilla_input").click(function(e) {
         e.preventDefault();
         add_input(100, 100, "-", null, 1);
@@ -400,7 +558,54 @@ document.addEventListener("DOMContentLoaded",function () {
         add_output(100, 100, "-", null);
         $("#save").removeClass("loqc_button_2_inactive");
         $("#save").addClass("loqc_button_alert");
-    });       
+    });
+    function add_output_heterodyne(x, y, id) {
+        var d = new OutputFigure({x: x, y:y, width:40, height:40});
+        d["type"] = "OUTHET";
+        if (id) {
+            d["id"] = id;
+        }
+        label_text = "T\n";
+        d.label = new draw2d.shape.basic.Label({text:label_text, fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.RightLocator(d));
+        var inputLocator = new draw2d.layout.locator.InputPortLocator();
+
+        port1_out = d.createPort("hybrid",inputLocator);
+        port1_out.on("connect", hide_port, port1_out);
+        port1_out.on("disconnect", show_port, port1_out);
+        
+        canvas.add( d);    
+    }
+    $("#add_output_heterodyne").click(function(e) {
+        e.preventDefault();
+        add_output_heterodyne(100, 100, null);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });
+    function add_output_homodyne(x, y, phi, id) {
+        var d = new OutputFigure({x: x, y:y, width:40, height:40});
+        d["type"] = "OUTHOM";
+        d["phi"] = phi
+        if (id) {
+            d["id"] = id;
+        }
+        label_text = "M\n" + String(phi);
+        d.label = new draw2d.shape.basic.Label({text:label_text, fontColor:"#0d0d0d", stroke:0});
+        d.add(d.label, new draw2d.layout.locator.RightLocator(d));
+        var inputLocator = new draw2d.layout.locator.InputPortLocator();
+
+        port1_out = d.createPort("hybrid",inputLocator);
+        port1_out.on("connect", hide_port, port1_out);
+        port1_out.on("disconnect", show_port, port1_out);
+        
+        canvas.add( d);    
+    }
+    $("#add_output_homodyne").click(function(e) {
+        e.preventDefault();
+        add_output_homodyne(100, 100, 0, null);
+        $("#save").removeClass("loqc_button_2_inactive");
+        $("#save").addClass("loqc_button_alert");
+    });     
     function serialize_object(el, suffix = "") {
         return {id: el.id + suffix, 
                   type: el.type,
@@ -537,8 +742,45 @@ document.addEventListener("DOMContentLoaded",function () {
                 cur_figure.label.text = "S\n" + Number((r).toFixed(1));
                 cur_figure.label.repaint();
                 return;
-            }  
-            if (cur_figure["type"] == "IN" || cur_figure["type"] == "OUT") {
+            }
+            if (cur_figure["type"] == "D") {
+                phi = parseFloat($("#phi_input").val());
+                cur_figure["phi"] = $("#phi_input").val();
+                r = parseFloat($("#r_input").val());
+                cur_figure["theta"] = $("#r_input").val();
+                cur_figure.label.text = "D\n" + Number((r).toFixed(1));
+                cur_figure.label.repaint();
+                return;
+            }
+            if (cur_figure["type"] == "P") {
+                s = parseFloat($("#s_input").val());
+                cur_figure["theta"] = $("#s_input").val();
+                cur_figure.label.text = "P\n" + Number((s).toFixed(1));
+                cur_figure.label.repaint();
+                return;
+            }
+            if (cur_figure["type"] == "V") {
+                gamma = parseFloat($("#gamma_input").val());
+                cur_figure["theta"] = $("#gamma_input").val();
+                cur_figure.label.text = "V\n" + Number((gamma).toFixed(1));
+                cur_figure.label.repaint();
+                return;
+            }
+            if (cur_figure["type"] == "CX") {
+                s = parseFloat($("#s_input").val());
+                cur_figure["theta"] = $("#s_input").val();
+                cur_figure.label.text = "CX\n" + Number((s).toFixed(1));
+                cur_figure.label.repaint();
+                return;
+            }
+            if(cur_figure["type"] == "OUTHOM"){
+                phi = parseFloat($("#phi_input").val());
+                cur_figure["phi"] = $("#phi_input").val();
+                cur_figure.label.text = "M\n" + Number((phi).toFixed(1));
+                cur_figure.label.repaint();
+                return;
+            }
+            if (cur_figure["type"] == "IN") {
                 n_val = $("#n_input").val();
                 if (n_val) {
                     n = parseInt(n_val);
@@ -550,7 +792,16 @@ document.addEventListener("DOMContentLoaded",function () {
                 }
                 cur_figure.label.repaint();
                 return;
-            }    
+            }
+            if (cur_figure["type"] == "COIN") {
+                r = parseFloat($("#r_input").val());
+                phi = parseFloat($("#phi_input").val());
+                cur_figure["r"] = $("#r_input").val();
+                cur_figure["phi"] = $("#phi_input").val();
+                cur_figure.label.text = "Coherent\n" + Number((r).toFixed(1));
+                cur_figure.label.repaint();
+                return;
+            }
         }        
     });
     $("#scale_minus").click(function(e) {
@@ -596,14 +847,35 @@ document.addEventListener("DOMContentLoaded",function () {
             add_ps(el.x, el.y, el.phi, el.id);
         }
         if (el.type == "S") {
-            add_s(el.x, el.y,el.theta, el.phi, el.id);
+            add_s(el.x, el.y, el.theta, el.phi, el.id);
+        }
+        if (el.type == "D") {
+            add_d(el.x, el.y, el.theta, el.phi, el.id);
+        }
+        if (el.type == "P") {
+            add_p(el.x, el.y, el.theta, el.id);
+        }
+        if (el.type == "V") {
+            add_v(el.x, el.y, el.theta, el.id);
+        }
+        if (el.type == "CX") {
+            add_cx(el.x, el.y, el.theta, el.id);
         }
         if (el.type == "IN") {
             add_input(el.x, el.y, el.n, el.id, el.input_type);
         }
+        if (el.type == "COIN") {
+            add_coherent_input(el.x, el.y, el.theta, el.phi, el.id, el.input_type);
+        }
         if (el.type == "OUT") {
             add_output(el.x, el.y, el.n, el.id);
-        } 
+        }
+        if (el.type == "OUTHET") {
+            add_output_heterodyne(el.x, el.y, el.id);
+        }
+        if (el.type == "OUTHOM") {
+            add_output_homodyne(el.x, el.y, el.phi, el.id);
+        }
         if (el.type == "User Project") {
             add_user_project(el.project_key, el.id, el.x, el.y);
         }                
@@ -728,13 +1000,22 @@ function add_user_project(key, id, x, y) {
             <a class="loqc_button" href="#" id='add_bs' >BSgate</a>
             <a class="loqc_button" href="#" id='add_ps' >Rgate</a>
             <a class="loqc_button" href="#" id='add_s' >Sgate</a>
+            <a class="loqc_button" href="#" id='add_d' >Dgate</a>
+            <a class="loqc_button" href="#" id='add_p' >Pgate</a>
+            <a class="loqc_button" href="#" id='add_v' >Vgate</a>
+            <a class="loqc_button" href="#" id='add_cx' >CXgate</a>
             <a class="loqc_button" href="#" id='add_input' >Fock input</a>
+            <a class="loqc_button" href="#" id='add_coherent_input' >Coherent input</a>
             {% comment %} <a class="loqc_button" href="#" id='add_ancilla_input' >Ancilla Input</a> {% endcomment %}
             {% comment %} <a class="loqc_button" href="#" id='add_control_input' >Control Input</a> {% endcomment %}
-            <a class="loqc_button" href="#" id='add_output' >Photon Detection<!--<span class="tooltiptext">Single photon detection</span>--></a>
+            <a class="loqc_button" href="#" id='add_output' >MeasureFock</a>
+            <a class="loqc_button" href="#" id='add_output_heterodyne' >MeasureHeterodyne</a>
+            <a class="loqc_button" href="#" id='add_output_homodyne' >MeasureHomodyne</a>
             <table id="controls" style="display:none;">
                 <tr id="theta"><td style="width:20px;"><b>&theta;</b></td><td><input type="number" id="theta_input" value="" style="min-height:15px;width:130px;"/></td></tr>
                 <tr id="r"><td style="width:20px;"><b>r</b></td><td><input type="number" id="r_input" value="" style="min-height:15px;width:130px;"/></td></tr>
+                <tr id="s"><td style="width:20px;"><b>s</b></td><td><input type="number" id="s_input" value="" style="min-height:15px;width:130px;"/></td></tr>
+                <tr id="gamma"><td style="width:20px;"><b>&gamma;</b></td><td><input type="number" id="gamma_input" value="" style="min-height:15px;width:130px;"/></td></tr>
                 <tr id="phi"><td style="width:20px;"><b>&phi;</b></td><td><input type="number" id="phi_input" value="" style="min-height:15px;width:130px;"/></td></tr>
                 <tr id="n"><td style="width:20px;"><b>n</b></td><td><input type="number" id="n_input" value="" style="min-height:15px;width:130px;"/></td></tr>
                 <tr><td colspan="2"><a class="loqc_button_2" href="#" id='set' >Set</a></td></tr>                

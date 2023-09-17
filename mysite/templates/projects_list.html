@@ -19,7 +19,7 @@
     </div>
   </div>
   <ul style="padding-left:5;">
-  <div style="margin: 5;display: flex;flex-direction: row;"> 
+  <div style="margin: 5; max-height: 32; width: 700"> 
     <div class="dropdown">
       <button id="backend_choice" class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         backend
@@ -34,7 +34,10 @@
       <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="#" onclick="changeSimulation('state_probabilities')">state probabilities</a></li>
         <li><a class="dropdown-item" href="#" onclick="changeSimulation('gaussian_unitary')">gaussian unitary</a></li>
+        <li><a class="dropdown-item" href="#" onclick="changeSimulation('shots_measurements')">shots measurements</a></li>
       </ul>
+      <input type="number" id="number_of_shots" class="form-control form-control-dark text-bg-dark" style="max-width: 170; max-height:31; float: right; margin=5;" placeholder="number of shots" aria-label="Search">
+      <input type="number" id="cutoff_dim" class="form-control form-control-dark text-bg-dark" style="max-width: 170; max-height:31; float: right; margin=5;" placeholder="cutoff dimension" aria-label="Search">
       <button id="simulate-button" class="btn btn-secondary btn-sm" type="button" aria-expanded="false" onclick="GetSimulationResults()">
         simulate
       </button>
@@ -76,12 +79,7 @@
     $("#project" + id).addClass("active");
   }
   function desplayResultsScreen(){
-    if(!global_current_simulated){
-      // insert loading gif
-      //$('#project_simulation_iframe').attr('src', "/LODesigner/simulate"+global_id);
-      $("#spinner_spinner").css("opacity", "1");
-      global_current_simulated = true;
-    }
+    $("#spinner_spinner").css("opacity", "1");
     if(display_results == true){
       display_results = false;
       $("#results-screen").css("z-index", "100");
@@ -91,24 +89,32 @@
     }
   }
   function GetSimulationResults(){
-    desplayResultsScreen()
-    var simulation = $.ajax({
-      type: "GET",
-      url: "http://127.0.0.1:8000/LODesigner/simulate/" + global_id,
-      data: {
-        backend: backend,
-        measurements: measurements,
-      },
-      async: true
-    });
-    simulation.done(function(json) {
-      document.getElementById("project_simulation_iframe").innerHTML = json;
-      $("#spinner_spinner").css("opacity", "0");
-    });
-    simulation.fail(function(jqXHR, textStatus, errorThrown){
-      document.getElementById("project_simulation_iframe").innerHTML = "Got some error: " + errorThrown + "<br/>Please do check if your setup is correct, and if everything seems right - contact me on ivanogloblin2022@gmail.com";
-      $("#spinner_spinner").css("opacity", "0");
-    });
+    const numberInput = document.getElementById('number_of_shots');
+    const cutoff_dim = document.getElementById('cutoff_dim');
+    desplayResultsScreen();
+    console.log(display_results);
+    if (display_results == false){
+      console.log("http://127.0.0.1:8000/LODesigner/simulate/", global_id);
+      var simulation = $.ajax({
+        type: "GET",
+        url: "http://127.0.0.1:8000/LODesigner/simulate/" + global_id,
+        data: {
+          backend: backend,
+          measurements: measurements,
+          shots: numberInput.value,
+          cutoff_dim: cutoff_dim.value,
+        },
+        async: true
+      });
+      simulation.done(function(json) {
+        document.getElementById("project_simulation_iframe").innerHTML = json;
+        $("#spinner_spinner").css("opacity", "0");
+      });
+      simulation.fail(function(jqXHR, textStatus, errorThrown){
+        document.getElementById("project_simulation_iframe").innerHTML = "Got some error: " + errorThrown + "<br/>Please do check if your setup is correct, and if everything seems right - contact me on ivanogloblin2022@gmail.com";
+        $("#spinner_spinner").css("opacity", "0");
+      });
+    }
   }
   function changeBackend(back){
     backend = back

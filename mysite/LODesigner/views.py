@@ -167,6 +167,8 @@ def simulate(request, project_key):
                 name=("circuit" + str(project_key)),
                 backend=request.GET.get("backend"),
                 simulation_option=request.GET.get("measurements"),
+                number_of_shots=request.GET.get("shots"),
+                cutoff_dim=request.GET.get("cutoff_dim"),
             ).construct_circuit(project_key, devices, connections)
             # serialized_U = [[str(element) for element in string] for string in U]
             # data = json.dumps(U, cls=NumpyArrayEncoder)
