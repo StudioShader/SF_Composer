@@ -51,7 +51,7 @@
       <div style="text-align: center; margin-left: auto; margin-right: auto;"><div id="spinner_spinner" class="spinner-border" role="status" style="opacity: 0"></div></div>
     </div>
   </div>
-  <iframe id="project_iframe" src="{% url 'lo_designer' project_key=-1 %}" title="description" style="position: absolute;top: 0;left: 0;z-index:5;max-height: 630; max-width: 1400;height:720;width:1400;"></iframe>
+  <iframe id="project_iframe" src="{% url 'lo_designer' project_key=-1 %}?only_published=true" title="description" style="position: absolute;top: 0;left: 0;z-index:5;max-height: 630; max-width: 1400;height:720;width:1400;"></iframe>
   </div>  
 </ul>
 {% endblock "content" %}
@@ -72,7 +72,7 @@
   function onclick(event){
     id = event.data.id;
     global_id = event.data.id;
-    $('#project_iframe').attr('src', "/LODesigner/lo_designer/"+id);
+    $('#project_iframe').attr('src', "/LODesigner/lo_designer/"+id+"?only_published='{{only_published}}'");
     projects.forEach(function(project){
       $("#project" + project.id).removeClass("active");
     });
@@ -92,9 +92,7 @@
     const numberInput = document.getElementById('number_of_shots');
     const cutoff_dim = document.getElementById('cutoff_dim');
     desplayResultsScreen();
-    console.log(display_results);
     if (display_results == false){
-      console.log("http://127.0.0.1:8000/LODesigner/simulate/", global_id);
       var simulation = $.ajax({
         type: "GET",
         url: "http://127.0.0.1:8000/LODesigner/simulate/" + global_id,

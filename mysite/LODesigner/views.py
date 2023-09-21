@@ -26,25 +26,27 @@ class NumpyArrayEncoder(JSONEncoder):
         return JSONEncoder.default(self, obj)
 
 
+@login_required(login_url="/login")
 def index(request):
-    projects = Project.objects.all()
+    projects = Project.objects.filter(user=request.user)
     serialized_projects = ProjectSerializer(projects, many=True)
     final_json = json.dumps(serialized_projects.data)
-    # print(serialized_projects.data)
-    # print(final_json)
-    # sfs.Circuit().simulate()
-    # U = sfs.Circuit().construct_circuit(4)
-    # print(U)
     return render(
         request,
         "projects_list.html",
-        {"projects": projects, "projects_json": final_json},
+        {"projects": projects, "projects_json": final_json, "only_published": 'false'},
     )
 
 
 @xframe_options_sameorigin
 def lodesigner(request, project_key):
-    return render(request, "lo_designer.html", {"project_key": project_key})
+    print(request.GET["only_published"])
+    print(type(request.GET["only_published"]))
+    if request.GET["only_published"] == 'false':
+        return render(request, "lo_designer.html", {"project_key": project_key, "only_published": request.GET["only_published"]})
+    if request.GET["only_published"] == "'false'":
+        return render(request, "lo_designer.html", {"project_key": project_key, "only_published": 'false'})
+    return render(request, "lo_designer.html", {"project_key": project_key, "only_published": 'true'})
 
 
 def sign_up(request):
@@ -57,6 +59,17 @@ def sign_up(request):
     else:
         form = RegisterForm()
     return render(request, "registration/sign_up.html", {"form": form})
+
+
+def published_projects(request):
+    projects = Project.objects.filter(published=True)
+    serialized_projects = ProjectSerializer(projects, many=True)
+    final_json = json.dumps(serialized_projects.data)
+    return render(
+        request,
+        "projects_list.html",
+        {"projects": projects, "projects_json": final_json, "only_published": 'true'},
+    )
 
 
 @login_required(login_url="/login")
@@ -72,6 +85,14 @@ def create_project(request):
         form = ProjectForm()
     return render(request, "create_project.html", {"form": form})
 
+@csrf_exempt
+@login_required(login_url="/login")
+def publish_project(request, project_key):
+    if request.method == "POST":
+        projects = Project.objects.get(pk=project_key)
+        projects.published = True
+        projects.save()
+        return HttpResponse("Project was succesfully published")
 
 @login_required(login_url="/login")
 def home(request):

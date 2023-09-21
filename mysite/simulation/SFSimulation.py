@@ -245,7 +245,7 @@ class Circuit:
                         "  ",
                         dev_info[1][1],
                     )
-                    CXgate(float(dev_info[0].theta)) | (
+                    CZgate(float(dev_info[0].theta)) | (
                         q[dev_info[1][0]],
                         q[dev_info[1][1]],
                     )
@@ -264,7 +264,7 @@ class Circuit:
                     ]
                 elif dev_info[0].type == "P":
                     print("Pgate", dev_info[0].theta, "  ", dev_info[1][0])
-                    Pgate(float(dev_info[0].theta)) | q[dev_info[1][0]]
+                    Zgate(float(dev_info[0].theta)) | q[dev_info[1][0]]
                 elif dev_info[0].type == "V":
                     print("Vgate", dev_info[0].theta, "  ", dev_info[1][0])
                     Vgate(float(dev_info[0].theta)) | q[dev_info[1][0]]
@@ -297,10 +297,11 @@ class Circuit:
             prog_unitary.circuit = boson_sampling.circuit
             prog_compiled = None
             if self.backend == "fock":
-                prog_compiled = prog_unitary.compile(compiler="fock")
+                return "Please use gaussian backend for gaussian_unitary option. Support is coming"
             else:
                 prog_compiled = prog_unitary.compile(compiler="gaussian_unitary")
             S = prog_compiled.circuit[0].op.p[0]
+            print("number_of_input_modes: ", number_of_input_modes)
             U = (
                 S[:number_of_input_modes, :number_of_input_modes]
                 + 1j * S[number_of_input_modes:, :number_of_input_modes]

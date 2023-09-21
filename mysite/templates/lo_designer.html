@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded",function () {
         if (id) {
             d["id"] = id;
         }
-        d.label = new draw2d.shape.basic.Label({text:"CX\n" + Number(s).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.label = new draw2d.shape.basic.Label({text:"CZ\n" + Number(s).toFixed(1), fontColor:"#0d0d0d", stroke:0});
         d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
        
         port1 = d.createPort("hybrid",new MyInputPortLocatorTop());
@@ -339,7 +339,7 @@ document.addEventListener("DOMContentLoaded",function () {
     }
     $("#add_ps").click(function(e) {
         e.preventDefault();
-        add_ps(100, 100, 180.0, null);
+        add_ps(100, 100, 1.0, null);
         $("#save").removeClass("loqc_button_2_inactive");
         $("#save").addClass("loqc_button_alert");
     });
@@ -409,7 +409,7 @@ document.addEventListener("DOMContentLoaded",function () {
         if (id) {
             d["id"] = id;
         }
-        d.label = new draw2d.shape.basic.Label({text:"P\n"+Number(s).toFixed(1), fontColor:"#0d0d0d", stroke:0});
+        d.label = new draw2d.shape.basic.Label({text:"Z\n"+Number(s).toFixed(1), fontColor:"#0d0d0d", stroke:0});
         d.add(d.label, new draw2d.layout.locator.CenterLocator(d));
         var inputLocator  = new draw2d.layout.locator.InputPortLocator({width:10, height:10});
         var outputLocator = new draw2d.layout.locator.OutputPortLocator();
@@ -708,7 +708,7 @@ document.addEventListener("DOMContentLoaded",function () {
     });
     $("#publish").click(function(e) {
         e.preventDefault();
-        PublushProject(canvas);
+        PublishProject(canvas);
         //$("#activate").click(); 
     });
     $("#set").click(function(e) {
@@ -755,7 +755,7 @@ document.addEventListener("DOMContentLoaded",function () {
             if (cur_figure["type"] == "P") {
                 s = parseFloat($("#s_input").val());
                 cur_figure["theta"] = $("#s_input").val();
-                cur_figure.label.text = "P\n" + Number((s).toFixed(1));
+                cur_figure.label.text = "Z\n" + Number((s).toFixed(1));
                 cur_figure.label.repaint();
                 return;
             }
@@ -769,7 +769,7 @@ document.addEventListener("DOMContentLoaded",function () {
             if (cur_figure["type"] == "CX") {
                 s = parseFloat($("#s_input").val());
                 cur_figure["theta"] = $("#s_input").val();
-                cur_figure.label.text = "CX\n" + Number((s).toFixed(1));
+                cur_figure.label.text = "CZ\n" + Number((s).toFixed(1));
                 cur_figure.label.repaint();
                 return;
             }
@@ -912,7 +912,10 @@ document.addEventListener("DOMContentLoaded",function () {
 });
 
 var need_lines = false;
-
+function PublishProject(){
+    $.post('publish/{{ project_key }}', function(data) {alert(data)});
+    console.log(data);
+}
 function PublushProject(canvas){
     // convert the canvas into a PNG image source string 
     //
@@ -984,6 +987,19 @@ function add_user_project(key, id, x, y) {
   <body>
     <table><tr>
         <td style="max-width:180px;vertical-align: top;">
+            {% if only_published == 'true' %}
+            <a class="loqc_button_2" href="#" id='delete_selection' title="Delete selection">Delete</a>
+            <div style="width:200;height:32;flex-flow:row;">
+            <a class="loqc_button_2" href="#" style="width:32px;" id='undo' title="Undo"><i class="icon-arrow-left"></i></a> 
+            <a class="loqc_button_2" href="#" style="width:32px;" id='redo' title="Redo"><i class="icon-arrow-right"></i></a> 
+            </div>
+            <a class="loqc_button_2" href="#" style="width:32px;" id='scale_minus' title="Zoom out"><i class="icon-zoom-out"></i></a>
+            <a class="loqc_button_2" href="#" style="width:32px;" id='scale_plus' title="Zoom-in"><i class="icon-zoom-in"></i></a>   
+            <a class="loqc_button_2 tooltip" href="#" id='activate' style="display:none;">Unlock<span class="tooltiptext">Press me when 'Delete' doesn't work!</span></a>
+            <a class="loqc_button_2" href="#" style="width:32px;" id='export' >Export</a>
+            <a class="loqc_button_2" href="#" style="width:32px;" id='import' >Import</a>
+            {% endif %}
+            {% if only_published == 'false' %}
             <a class="loqc_button_2_inactive" href="#" id='save' >Save</a>
             <a class="loqc_button_2" href="#" id='delete_selection' title="Delete selection">Delete</a>
             <div style="width:200;height:32;flex-flow:row;">
@@ -996,20 +1012,21 @@ function add_user_project(key, id, x, y) {
             <a class="loqc_button_2" href="#" id='publish' >Publish</a>
             <a class="loqc_button_2" href="#" style="width:32px;" id='export' >Export</a>
             <a class="loqc_button_2" href="#" style="width:32px;" id='import' >Import</a>
+            {% endif %}
             <hr></hr>
             <a class="loqc_button" href="#" id='add_bs' >BSgate</a>
             <a class="loqc_button" href="#" id='add_ps' >Rgate</a>
             <a class="loqc_button" href="#" id='add_s' >Sgate</a>
-            <a class="loqc_button" href="#" id='add_d' >Dgate</a>
-            <a class="loqc_button" href="#" id='add_p' >Pgate</a>
+            {% comment %} <a class="loqc_button" href="#" id='add_d' >Dgate</a> {% endcomment %}
+            <a class="loqc_button" href="#" id='add_p' >Zgate</a>
             <a class="loqc_button" href="#" id='add_v' >Vgate</a>
-            <a class="loqc_button" href="#" id='add_cx' >CXgate</a>
+            <a class="loqc_button" href="#" id='add_cx' >CZgate</a>
             <a class="loqc_button" href="#" id='add_input' >Fock input</a>
             <a class="loqc_button" href="#" id='add_coherent_input' >Coherent input</a>
             {% comment %} <a class="loqc_button" href="#" id='add_ancilla_input' >Ancilla Input</a> {% endcomment %}
             {% comment %} <a class="loqc_button" href="#" id='add_control_input' >Control Input</a> {% endcomment %}
             <a class="loqc_button" href="#" id='add_output' >MeasureFock</a>
-            <a class="loqc_button" href="#" id='add_output_heterodyne' >MeasureHeterodyne</a>
+            {% comment %} <a class="loqc_button" href="#" id='add_output_heterodyne' >MeasureHeterodyne</a> {% endcomment %}
             <a class="loqc_button" href="#" id='add_output_homodyne' >MeasureHomodyne</a>
             <table id="controls" style="display:none;">
                 <tr id="theta"><td style="width:20px;"><b>&theta;</b></td><td><input type="number" id="theta_input" value="" style="min-height:15px;width:130px;"/></td></tr>
