@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block "content" %}
+<img style="opacity: 0.15;position: absolute; z-index: -10; top: 0px; left: -50px; width: 1570;" src="{% static 'LODesigner/images/back.png' %}" alt="My image"/>
+<div class="container col-xl-10 col-xxl-8 px-4 py-5" style="color:white">
+    This resource is dedicated to simulation of linear and non-linear optics for quantum computations. Strawberry fields is a base for research directions. Please visit is it 
+            <a href="https://strawberryfields.ai/photonics/demonstrations.html">here</a>. In general it is a usefull resource to learn from their tutorials. <br/> Purpouse of this project is to structure the knowledge in this area around community.
+            If you have any suggestions, ideas or needs please contact the creator of this website on <a style="color:red">ivanogloblin2022@gmail.com</a>  
+            <br/>
+            <br/>
+            <br/>
+            This project is in it's earliest stage. Right now we are working to bring you features like 
+            <ul>
+                <li>More of the output state analysis</li>
+                <li>On hand Time Domain Multeplexing compiler</li>
+                <li>Interferometer() option</li>
+                <li>Post selection</li>
+                <li>Dual rail mode</li>
+                <li>Import, Export</li>
+                <li>General design purpouses of the website</li>
+            <ul/>
+            <br/>
+            If you want to ask a question or help in any way, please contact the creator. We are all here to learn and help each other!
+        </div>
+{% endblock "content" %}

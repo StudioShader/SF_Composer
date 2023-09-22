@@ -37,6 +37,11 @@ def index(request):
         {"projects": projects, "projects_json": final_json, "only_published": 'false'},
     )
 
+def home(request):
+    return redirect("/login")
+
+def about(request):
+    return render(request, "about.html")
 
 @xframe_options_sameorigin
 def lodesigner(request, project_key):
@@ -89,15 +94,13 @@ def create_project(request):
 @login_required(login_url="/login")
 def publish_project(request, project_key):
     if request.method == "POST":
-        projects = Project.objects.get(pk=project_key)
-        projects.published = True
-        projects.save()
-        return HttpResponse("Project was succesfully published")
-
-@login_required(login_url="/login")
-def home(request):
-    return redirect(request, "/LODesigner/index")
-
+        if request.user.groups.filter(name='mod').exists():
+            projects = Project.objects.get(pk=project_key)
+            projects.published = True
+            projects.save()
+            return HttpResponse("Project was succesfully published")
+        else:
+            return HttpResponse("You are not authorized to publish projects, please contact ivanogloblin2022@gmail.com")
 
 @csrf_exempt
 @login_required(login_url="/login")

@@ -1,11 +1,25 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 {% block "content" %}
-<div style="margin: auto;">
-<span class="fs-4">Login</span>
-<form method="post">
-    {% csrf_token %}{{form|crispy}}
-    <p>Don't have an account? Create <a href="/LODesigner/sign-up">HERE</a></p>
-    <button type="submit" class="btn btn-success">Login</button>
-</form>
+<img style="opacity: 0.15;position: absolute; z-index: -10; top: 0px; left: -50px; width: 1570; " src="{% static 'LODesigner/images/back.png' %}" alt="My image"/>
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+    <div class="row align-items-center g-lg-5 py-5">
+      <div class="col-lg-7 text-center text-lg-start">
+        <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">Strawberry Fields Composer</h1>
+        <p class="col-lg-10 fs-4">This resource is dedicated to simulation of linear and non-linear optics for quantum computations. Strawberry fields is a base for research directions. Please visit is it 
+            <a href="https://strawberryfields.ai/photonics/demonstrations.html">here</a></p>
+      </div>
+      <div class="col-md-10 mx-auto col-lg-5">
+        <div style="margin: auto;">
+        <span class="fs-4">Login</span>
+        <form method="post">
+            {% csrf_token %}{{form|crispy}}
+            <p>Don't have an account? Create <a href="/LODesigner/sign-up">here</a></p>
+            <button type="submit" class="btn btn-success">Login</button>
+        </form>
+        <div/>
+      </div>
+    </div>
+</div>
 {% endblock "content" %}

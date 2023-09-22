@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 from . import views
 
 urlpatterns = [
+    path("home/", views.home, name="home"),
+    path("about/", views.about, name="about"),
     path("", views.index, name="index"),
     # path("index/", views.index, name="main_index"),
     path("lo_designer/add_cycle_object/", views.add_cycle_object, name="add_cycle_object"),
