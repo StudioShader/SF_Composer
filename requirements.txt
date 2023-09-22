@@ -1,0 +1,7 @@
+dj_database_url==2.1.0
+Django==4.2.3
+djangorestframework==3.14.0
+numpy==1.23.3
+protobuf==3.6.1
+StrawberryFields==0.23.0
+webapp2==2.5.2
