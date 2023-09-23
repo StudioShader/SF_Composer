@@ -7,7 +7,7 @@ click==8.1.7
 cloudpickle==2.2.1
 colorama==0.4.6
 crispy-bootstrap5==0.7
-dask==2023.9.2
+dask==2022.2.0
 dj-database-url==2.1.0
 Django==3.2.21
 django-crispy-forms==2.0
