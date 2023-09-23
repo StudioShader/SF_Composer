@@ -5,3 +5,7 @@ numpy==1.23.3
 protobuf==3.6.1
 StrawberryFields==0.23.0
 webapp2==2.5.2
+crispy-bootstrap5==0.7
+django-crispy-forms==2.0
+psycopg2==2.9.7
+gunicorn==21.2.0
