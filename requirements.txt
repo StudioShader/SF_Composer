@@ -1,7 +1,7 @@
 dj_database_url==2.1.0
 Django==3.2.21
 djangorestframework==3.14.0
-numpy==1.23.3
+numpy==1.21.6
 protobuf==3.6.1
 StrawberryFields==0.23.0
 webapp2==2.5.2
