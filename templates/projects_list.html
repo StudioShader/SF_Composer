@@ -92,10 +92,12 @@
     const numberInput = document.getElementById('number_of_shots');
     const cutoff_dim = document.getElementById('cutoff_dim');
     desplayResultsScreen();
+    var origin = window.location.origin;
+    console.log(origin + "/LODesigner/simulate/" + global_id);
     if (display_results == false){
       var simulation = $.ajax({
         type: "GET",
-        url: "http://127.0.0.1:8000/LODesigner/simulate/" + global_id,
+        url: origin + "/LODesigner/simulate/" + global_id,
         data: {
           backend: backend,
           measurements: measurements,
