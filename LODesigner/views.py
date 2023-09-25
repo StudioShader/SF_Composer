@@ -174,7 +174,7 @@ def cycle_objects(request):
     return HttpResponse("None devices was found")
 
 
-@xframe_options_sameorigin
+# @xframe_options_sameorigin
 @csrf_exempt
 @login_required(login_url="/login")
 def simulate(request, project_key):
